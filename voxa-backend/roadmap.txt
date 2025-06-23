@@ -1,0 +1,9 @@
+| **Phase**   | **Tasks**                                                                                                                        |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Phase 1** | Core Setup → NestJS init, MongoDB config, `.env`, CORS, **rate limiting**, global interceptors, `AppException`, exception filter |
+| **Phase 2** | Shared Services → OTP, JWT, Nodemailer, Cloudinary, helper utilities, common decorators/constants                                |
+| **Phase 3** | Auth Module → OTP flows, register (with OTP), login (check banned), reset password (user/admin with OTP + securityAnswer)        |
+| **Phase 4** | Admin Module → Get all users, get user by ID, **ban/unban**, **analytics** tracking + fetch                                      |
+| **Phase 5** | User Module → CRUD profile, search users, send/accept/reject friend requests, delete **own** account                             |
+| **Phase 6** | Chat Module → WebSocket chat, encrypted messages, TTL for auto-delete (24h), chat history, user online status                    |
+| **Phase 7** | Notifications (real-time), Cloudinary uploads, testing + cleanup, optional Swagger API docs                                      |
