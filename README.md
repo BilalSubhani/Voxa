@@ -19,7 +19,7 @@ Voxa is a secure, role-based messaging platform that supports:
 
 ## 💻 Frontend – Built with Next.js
 
-The frontend is developed using **Next.js App Router**, with **Tailwind CSS** for styling and **Zustand** for state management. 
+The frontend is developed using **Next.js App Router**, with **Tailwind CSS** for styling and **Zustand** for state management.
 
 Key frontend features:
 
@@ -62,8 +62,8 @@ Key backend features:
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-username/Voxa.git
-cd Voxa/backend
+git clone https://github.com/BilalSubhani/Voxa.git
+cd Voxa/voxa-backend
 
 # Install dependencies
 npm install
@@ -82,7 +82,7 @@ npm run start:dev
 
 ```bash
 # In a new terminal
-cd Voxa/frontend
+cd Voxa/voxa-frontend
 
 # Install dependencies
 npm install
