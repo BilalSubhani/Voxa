@@ -10,6 +10,9 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AdminModule } from './modules/admin/admin.module';
+import { UserModule } from './modules/user/user.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { FriendRequestModule } from './modules/friend-request/friend-request.module';
 
 @Module({
   imports: [
@@ -19,6 +22,9 @@ import { AdminModule } from './modules/admin/admin.module';
     ScheduleModule.forRoot(),
     AuthModule,
     AdminModule,
+    UserModule,
+    FriendRequestModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [
