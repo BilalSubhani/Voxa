@@ -9,10 +9,10 @@ import {
   UseGuards,
   Post,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UserService } from './user.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { ResponseUtil } from 'src/common/utils/response.util';
+import { ResponseUtil } from '../../common/utils/response.util';
 import { Request } from 'express';
 
 @Controller('users')

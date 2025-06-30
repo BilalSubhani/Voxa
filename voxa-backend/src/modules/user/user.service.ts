@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../auth/schemas/user.schema';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AppException } from 'src/common/exceptions/app.exception';
-import { HashUtil } from 'src/shared/utils/hash.util';
+import { AppException } from '../../common/exceptions/app.exception';
+import { HashUtil } from '../../shared/utils/hash.util';
 
 @Injectable()
 export class UserService {

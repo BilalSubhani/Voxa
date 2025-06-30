@@ -5,12 +5,16 @@ import {
   FriendRequestDocument,
 } from './schemas/friend-request.schema';
 import { Model } from 'mongoose';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationGateway } from '../notification/notification.gateway';
 
 @Injectable()
 export class FriendRequestService {
   constructor(
     @InjectModel(FriendRequest.name)
     private readonly friendRequestModel: Model<FriendRequestDocument>,
+    private readonly notificationService: NotificationService,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   async sendRequest(from: string, to: string) {
@@ -24,15 +28,41 @@ export class FriendRequestService {
 
     if (existing) throw new Error('Friend request already sent');
 
-    return this.friendRequestModel.create({ from, to });
+    const request = await this.friendRequestModel.create({ from, to });
+
+    await this.notificationService.create(
+      to,
+      'friend_request',
+      'You have a new friend request',
+    );
+    this.notificationGateway.sendNotification(to, {
+      type: 'friend_request',
+      content: 'You have a new friend request',
+    });
+
+    return request;
   }
 
   async acceptRequest(id: string) {
-    return this.friendRequestModel.findByIdAndUpdate(
+    const request = await this.friendRequestModel.findByIdAndUpdate(
       id,
       { status: 'accepted' },
       { new: true },
     );
+
+    if (request) {
+      await this.notificationService.create(
+        request.from.toString(),
+        'friend_request_accepted',
+        'Your friend request has been accepted',
+      );
+      this.notificationGateway.sendNotification(request.from.toString(), {
+        type: 'friend_request_accepted',
+        content: 'Your friend request has been accepted',
+      });
+    }
+
+    return request;
   }
 
   async rejectRequest(id: string) {

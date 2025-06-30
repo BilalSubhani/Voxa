@@ -6,18 +6,20 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
+import { Socket } from 'socket.io';
 import { ChatService } from './chat.service';
+import { NotificationGateway } from '../notification/notification.gateway';
+import { NotificationService } from '../notification/notification.service';
 
-@WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
-})
+@WebSocketGateway({ cors: { origin: '*' } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers: Map<string, string> = new Map(); // userId => socketId
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly notificationService: NotificationService,
+    private readonly notificationGateway: NotificationGateway,
+  ) {}
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
@@ -30,6 +32,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (userId) {
       this.onlineUsers.delete(userId);
+      this.notificationGateway.unregisterUser(client.id);
       console.log(`User ${userId} disconnected`);
     }
   }
@@ -40,6 +43,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     this.onlineUsers.set(userId, client.id);
+    this.notificationGateway.registerUser(userId, client.id);
     console.log(`User ${userId} registered with socket ${client.id}`);
   }
 
@@ -74,5 +78,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (senderSocketId && senderSocketId !== client.id) {
       client.to(senderSocketId).emit('message_sent', decrypted);
     }
+
+    await this.notificationService.create(
+      payload.receiver,
+      'message',
+      'You received a new message',
+    );
+    this.notificationGateway.sendNotification(payload.receiver, {
+      type: 'message',
+      content: 'You received a new message',
+    });
   }
 }

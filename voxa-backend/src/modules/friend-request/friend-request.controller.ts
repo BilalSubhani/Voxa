@@ -9,9 +9,9 @@ import {
   Body,
 } from '@nestjs/common';
 import { FriendRequestService } from './friend-request.service';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Request } from 'express';
-import { ResponseUtil } from 'src/common/utils/response.util';
+import { ResponseUtil } from '../../common/utils/response.util';
 
 @UseGuards(JwtAuthGuard)
 @Controller('friend-requests')

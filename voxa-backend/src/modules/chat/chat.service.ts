@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { Message, MessageDocument } from './schemas/message.schema';
 import { EncryptionUtil } from 'src/shared/utils/encryption.util';
 import {
@@ -41,14 +41,11 @@ export class ChatService {
     }
 
     const encrypted = this.encryptionUtil.encrypt(content);
-
-    const message = new this.messageModel({
+    return this.messageModel.create({
       sender,
       receiver,
       content: encrypted,
     });
-
-    return message.save();
   }
 
   async getChatHistory(userA: string, userB: string): Promise<any[]> {

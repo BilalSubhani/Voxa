@@ -13,6 +13,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { UserModule } from './modules/user/user.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { FriendRequestModule } from './modules/friend-request/friend-request.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { FriendRequestModule } from './modules/friend-request/friend-request.mod
     UserModule,
     FriendRequestModule,
     ChatModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [
