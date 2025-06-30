@@ -1,58 +1,78 @@
-// src/modules/chat/chat.gateway.ts
 import {
   WebSocketGateway,
   SubscribeMessage,
-  WebSocketServer,
+  MessageBody,
+  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
 
-@WebSocketGateway({ cors: true, namespace: '/chat' })
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() server: Server;
-  private logger = new Logger('ChatGateway');
-  private onlineUsers = new Map<string, string>();
+  private onlineUsers: Map<string, string> = new Map(); // userId => socketId
 
   constructor(private readonly chatService: ChatService) {}
 
   handleConnection(client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`);
+    console.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    for (const [userId, socketId] of this.onlineUsers.entries()) {
-      if (socketId === client.id) {
-        this.onlineUsers.delete(userId);
-        this.server.emit('user-offline', userId);
-        this.logger.log(`User offline: ${userId}`);
-        break;
-      }
+    const userId = [...this.onlineUsers.entries()].find(
+      ([, socketId]) => socketId === client.id,
+    )?.[0];
+
+    if (userId) {
+      this.onlineUsers.delete(userId);
+      console.log(`User ${userId} disconnected`);
     }
-    this.logger.log(`Client disconnected: ${client.id}`);
   }
 
-  @SubscribeMessage('user-online')
-  handleUserOnline(client: Socket, userId: string) {
-    this.onlineUsers.set(userId, client.id);
-    this.server.emit('user-online', userId);
-    this.logger.log(`User online: ${userId}`);
-  }
-
-  @SubscribeMessage('send-message')
-  async handleSendMessage(
-    client: Socket,
-    payload: { senderId: string; receiverId: string; content: string },
+  @SubscribeMessage('register')
+  async registerUser(
+    @MessageBody() userId: string,
+    @ConnectedSocket() client: Socket,
   ) {
-    const message = await this.chatService.saveMessage(payload);
-    const receiverSocket = this.onlineUsers.get(payload.receiverId);
+    this.onlineUsers.set(userId, client.id);
+    console.log(`User ${userId} registered with socket ${client.id}`);
+  }
 
-    if (receiverSocket) {
-      this.server.to(receiverSocket).emit('receive-message', message);
+  @SubscribeMessage('send_message')
+  async handleSendMessage(
+    @MessageBody()
+    payload: {
+      sender: string;
+      receiver: string;
+      content: string;
+    },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const savedMessage = await this.chatService.saveMessage(
+      payload.sender,
+      payload.receiver,
+      payload.content,
+    );
+
+    const decrypted = {
+      ...savedMessage.toObject(),
+      content: payload.content,
+    };
+
+    const receiverSocketId = this.onlineUsers.get(payload.receiver);
+    const senderSocketId = this.onlineUsers.get(payload.sender);
+
+    if (receiverSocketId) {
+      client.to(receiverSocketId).emit('receive_message', decrypted);
     }
 
-    client.emit('message-sent', message);
+    if (senderSocketId && senderSocketId !== client.id) {
+      client.to(senderSocketId).emit('message_sent', decrypted);
+    }
   }
 }
