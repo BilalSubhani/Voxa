@@ -12,6 +12,7 @@ import {
   FriendRequestSchema,
 } from '../friend-request/schemas/friend-request.schema';
 import { EncryptionUtil } from 'src/shared/utils/encryption.util';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EncryptionUtil } from 'src/shared/utils/encryption.util';
       { name: FriendRequest.name, schema: FriendRequestSchema },
     ]),
     SharedModule,
+    NotificationModule,
   ],
   controllers: [ChatController],
   providers: [ChatService, ChatGateway, EncryptionUtil],
